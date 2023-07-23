@@ -15,10 +15,20 @@ NEWSPIDER_MODULE = "noticias.spiders"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "noticias (+http://www.yourdomain.com)"
-ITEM_PIPELINES = {
-    'noticias.pipelines.NoticiasPipeline': 300,
-    #'noticias.pipelines.SaveToPSQLPipeline': 400
-    }
+# ITEM_PIPELINES = {
+#     'noticias.pipelines.NoticiasPipeline': 300,
+#     #'noticias.pipelines.SaveToPSQLPipeline': 400
+#     }
+
+EXTENSIONS = {
+        'scrapeops_scrapy.extension.ScrapeOpsMonitor': 500, 
+        }
+
+# Update The Download Middlewares
+DOWNLOADER_MIDDLEWARES = {
+'scrapeops_scrapy.middleware.retry.RetryMiddleware': 550,
+'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
+}
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -60,17 +70,7 @@ DOWNLOAD_DELAY = 0.25
 #    "noticias.middlewares.NoticiasDownloaderMiddleware": 543,
 #}
 
-# Enable or disable extensions
-# See https://docs.scrapy.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
-#    "scrapy.extensions.telnet.TelnetConsole": None,
-#}
 
-# Configure item pipelines
-# See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "noticias.pipelines.NoticiasPipeline": 300,
-#}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
