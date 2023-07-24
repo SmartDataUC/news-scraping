@@ -42,10 +42,14 @@ class NoticiasPipeline(object):
 
 class SaveToPSQLPipeline:
     def __init__(self):
-        self.conn = psycopg2.connect(database="smartdata",
-                                host="127.0.0.1",
-                                user="postgres",
-                                password="Sandia27",
+        endpoint = "database-test.cudfryltll2z.sa-east-1.rds.amazonaws.com"
+        database = "postgres"
+        username = "postgres"
+        password = "Sandia27#"
+        self.conn = psycopg2.connect(database=database,
+                                host=endpoint,
+                                user=username,
+                                password=password,
                                 port="5432")
         self.cursor = self.conn.cursor()
 

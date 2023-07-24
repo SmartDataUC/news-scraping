@@ -15,10 +15,10 @@ NEWSPIDER_MODULE = "noticias.spiders"
 SCRAPEOPS_API_KEY = 'ba39c435-8af5-47e5-a21d-81e36c844ac9'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "noticias (+http://www.yourdomain.com)"
-# ITEM_PIPELINES = {
-#     'noticias.pipelines.NoticiasPipeline': 300,
-#     #'noticias.pipelines.SaveToPSQLPipeline': 400
-#     }
+ITEM_PIPELINES = {
+    #'noticias.pipelines.NoticiasPipeline': 300,
+    'noticias.pipelines.SaveToPSQLPipeline': 400
+    }
 
 EXTENSIONS = {
         'scrapeops_scrapy.extension.ScrapeOpsMonitor': 500, 
