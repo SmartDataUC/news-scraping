@@ -50,7 +50,7 @@ class EmolSpider(CrawlSpider):
         published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")
         news_item['date'] = date_str[:10]
         self.cont+=1
-        if self.cont > 3:
+        if self.cont > 30:
             raise CloseSpider('Date exceeded')
         # days = (datetime.now().replace(tzinfo=None) - published_time.replace(tzinfo=None)).days
         # if days > 1:

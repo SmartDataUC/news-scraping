@@ -53,9 +53,10 @@ class TheClinicSpider(CrawlSpider):
         published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")
         news_item['date'] = date_str[:10]
 
-        # self.cont+=1
-        # if self.cont > 3:
-        #     raise CloseSpider('Date exceeded')
+        self.item_count += 1
+        if self.item_count > 40:
+            raise CloseSpider('Item exceeded')
+        
         days = (datetime.now().replace(tzinfo=None) - published_time.replace(tzinfo=None)).days
         if days > 1:
             self.item_count += 1

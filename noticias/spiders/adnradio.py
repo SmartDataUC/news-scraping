@@ -72,8 +72,13 @@ class ADNRadioSpider(CrawlSpider):
         
 
         days = (datetime.now().replace(tzinfo=None) - published_time.replace(tzinfo=None)).days
+        self.item_count += 1
+        if self.item_count > 40:
+            raise CloseSpider('Item exceeded')
+        
         if days > 1:
             self.item_count += 1
             if self.item_count > 2:
                 raise CloseSpider('Date exceeded')
+        
         yield news_item
