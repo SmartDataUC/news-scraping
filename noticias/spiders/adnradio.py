@@ -70,6 +70,9 @@ class ADNRadioSpider(CrawlSpider):
         
         news_item['date'] = published_time
         
+        stats = self.crawler.stats.get_stats()
+        if stats['response_received_count'] > 300:
+            raise CloseSpider('Time exceeded')
 
         days = (datetime.now().replace(tzinfo=None) - published_time.replace(tzinfo=None)).days
         self.item_count += 1

@@ -6,6 +6,8 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
 from noticias.utils import clean_text
+import time
+
 
 class EmolSpider(CrawlSpider):
     name = 'emol'
@@ -13,6 +15,7 @@ class EmolSpider(CrawlSpider):
     start_urls = ['https://www.emol.com/']
     cont = 0
     item_count = 0
+    curr_time = time.time()
     rules = (
         Rule(LinkExtractor(allow=[r'noticias/' + k + r'/2023/\d{2}/\d{2}/\d+/.*' for k in [
             'Nacional']]),
@@ -49,6 +52,11 @@ class EmolSpider(CrawlSpider):
         date_str = response.css('meta[property="article:published_time"]::attr(content)').get()
         published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")
         news_item['date'] = date_str[:10]
+        
+        stats = self.crawler.stats.get_stats()
+        if stats['response_received_count'] > 300:
+            raise CloseSpider('Time exceeded')
+
         self.cont+=1
         if self.cont > 30:
             raise CloseSpider('Date exceeded')

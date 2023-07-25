@@ -53,6 +53,10 @@ class TheClinicSpider(CrawlSpider):
         published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")
         news_item['date'] = date_str[:10]
 
+        stats = self.crawler.stats.get_stats()
+        if stats['response_received_count'] > 300:
+            raise CloseSpider('Time exceeded')
+        
         self.item_count += 1
         if self.item_count > 40:
             raise CloseSpider('Item exceeded')
