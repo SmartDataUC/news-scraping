@@ -12,15 +12,33 @@ import time
 class EmolSpider(CrawlSpider):
     name = 'emol'
     allowed_domains = ['emol.com']
-    start_urls = ['https://www.emol.com/']
+    start_urls = ['https://www.emol.com/sitemap/']
     cont = 0
     item_count = 0
     curr_time = time.time()
+    # rules = (
+    #     # Rule(LinkExtractor(allow=(), restrict_xpaths=(
+    #     #     '//a[@class="next current-page-next-prev"]'))),
+    #     # Rule(LinkExtractor(allow='noticias/Nacional/', restrict_xpaths=('//div[@class="col_center_noticia4dest-360px bor_destacado"]/h3/a')),
+    #     #      callback='parse_item', follow=False)
+    #     Rule(LinkExtractor(allow=[r'noticias/' + k + r'/2023/\d{2}/\d{2}/\d+/.*' for k in [
+    #         'Nacional']], restrict_xpaths=('//div[@class="col_center_noticia4dest-360px bor_destacado"]/h3/a')),
+    #          callback='parse_item', follow=False),
+    #     Rule(LinkExtractor(allow=r'.*'), follow=False),
+    # )
     rules = (
-        Rule(LinkExtractor(allow=[r'noticias/' + k + r'/2023/\d{2}/\d{2}/\d+/.*' for k in [
-            'Nacional']]),
-             callback='parse_item', follow=True),
-        Rule(LinkExtractor(allow=r'.*'), follow=True),
+        Rule(LinkExtractor(
+            allow=[r'noticias/[a-zA-Z\d\-]+/\d{4}/\d{2}/\d{2}/\d+/[\da-zA-Z\-]+\.html']),
+            callback='parse_item', follow=False),
+        Rule(LinkExtractor(
+            allow=[
+                r'sitemap/noticias/\d{4}/index.html',
+                r'sitemap/noticias/\d{4}/emol_noticias.*\.html',
+            ],
+            deny=[
+                r'sitemap/noticias/\d{4}/emol_videos.*\.html',
+                r'sitemap/noticias/\d{4}/emol_fotos.*\.html',
+            ]), follow=True)
     )
 
     def parse_item(self, response):
@@ -54,7 +72,8 @@ class EmolSpider(CrawlSpider):
         news_item['date'] = date_str[:10]
         
         stats = self.crawler.stats.get_stats()
-        if stats['response_received_count'] > 300:
+        print(f"STASTS RESPON: {stats['response_received_count']}")
+        if stats['response_received_count'] > 50:
             raise CloseSpider('Time exceeded')
 
         self.cont+=1

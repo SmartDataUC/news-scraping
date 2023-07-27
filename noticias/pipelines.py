@@ -83,3 +83,48 @@ class SaveToPSQLPipeline:
     def close_spider(self, spider):
         self.cursor.close()
         self.conn.close()
+
+
+class TestPSQLPipeline:
+    def __init__(self):
+        endpoint = "database-test.cudfryltll2z.sa-east-1.rds.amazonaws.com"
+        database = "postgres"
+        username = "postgres"
+        password = "Sandia27#"
+        self.conn = psycopg2.connect(database=database,
+                                host=endpoint,
+                                user=username,
+                                password=password,
+                                port="5432")
+        self.cursor = self.conn.cursor()
+
+        self.cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS test(
+                            id SERIAL PRIMARY KEY,
+                            title TEXT,
+                            subtitle TEXT,
+                            body TEXT,
+                            date DATE,
+                            media VARCHAR(20),
+                            url VARCHAR(255) NOT NULL
+                            );
+                            """)
+    def process_item(self, item, spider):
+        self.cursor.execute(""" INSERT INTO test(
+                            title,
+                            subtitle,
+                            body,
+                            date,
+                            media,
+                            url
+                            ) VALUES (
+                            %s, %s, %s, %s, %s, %s
+                            )""", (
+            item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url']
+                            ))
+        self.conn.commit()
+        return item
+    
+    def close_spider(self, spider):
+        self.cursor.close()
+        self.conn.close()

@@ -5,42 +5,38 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
+from noticias.utils import clean_text
 
-class ElMostradorSpider(CrawlSpider):
-    name = 'elmostrador'
+class BiobiochileSpider(CrawlSpider):
+    name = "biobiochile"
+    allowed_domains = ["biobiochile.cl"]
+    start_urls = ["https://www.biobiochile.cl/lista/categorias/region-metropolitana"]
     item_count = 0
-    allowed_domain = ['www.elmostrador.cl']
-    start_urls = ['https://www.elmostrador.cl/categoria/pais/']
 
     # Rules to explore item and next page
     rules = {
-        Rule(LinkExtractor(allow='pais/page/'), callback='parse_item', follow=True), # navigation
-        Rule(LinkExtractor(allow=(), restrict_xpaths=('//h4[@class="d-tag-card__title"]/a')), # items
+        # Rule(LinkExtractor(allow=(), restrict_xpaths=(
+        #     '//div[@class="pagination"]/nav/ul/li/a'))),
+        Rule(LinkExtractor(allow=(), restrict_xpaths=('//div[@class="article-text-container"]/a')),
              callback='parse_item', follow=False)
     }
 
-    def clean_text(self, text):
-        text = ''.join(text)
-        text = text.replace("\n", '')
-        text = ''.join(text)
-        return text.strip()
-
     def parse_item(self, response):
         news_item = NoticiasItem()
-        news_item['media'] = 'elmostrador'
-
+        news_item['media'] = 'biobio'
         # Article title & subtitle
-        news_item['title'] = self.clean_text(response.xpath('//h1/text()').extract())
-        news_item['subtitle'] = self.clean_text(response.xpath('//p[@class="d-the-single__excerpt | u-fw-600"]/text()').extract())
-        if news_item['title'] == "":
-            return
+        news_item['title'] = clean_text(response.xpath(
+            '//h1/text()').extract())
+        news_item['subtitle'] = clean_text(response.xpath(
+            '//div[@class="post-excerpt"]/p/text()').extract())
+
         # Article Body (B4S to extract the bold and link texts)
-        article_text = ''
         soup = BeautifulSoup(response.body, 'html.parser')
-        main_content = soup.find('main')
-
-        paragraphs = main_content.select('p')
-
+        id_entry = response.css('meta[name="identrada"]::attr(content)').get()
+        div_element = soup.find('div', class_=f'banners-contenido-nota-{id_entry}')
+  
+        paragraphs = div_element.find_all('p')
+        full_text = ''
         for paragraph in paragraphs:
             text_parts = []
             for element in paragraph.contents:
@@ -49,28 +45,27 @@ class ElMostradorSpider(CrawlSpider):
                 elif isinstance(element, str):
                     text_parts.append(element)
             paragraph_text = ' '.join(text_parts).strip()
-            article_text += paragraph_text + ' '
+            full_text += paragraph_text + '\n'
 
-        news_item['body'] = self.clean_text(article_text.strip())
+        news_item['body'] = clean_text(full_text.strip())
 
         # Fecha de publicación
-        time_element = soup.find('time')
+        date_str = response.css('meta[property="og:updated_time"]::attr(content)').get()
+        published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")
+        news_item['date'] = date_str[:10]
+        # published_time = response.css(
+        #     'meta[property="og:updated_time"]::attr(content)').get()
+        # published_time = datetime.strptime(
+        #     published_time, "%Y-%m-%dT%H:%M:%S.%fZ")
+        # news_item['date'] = published_time.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Paso 3: Obtener el valor del atributo 'datetime'
-        datetime_str = time_element.get('datetime')
-
-        try:
-            published_time = datetime.strptime(datetime_str, "%Y-%m-%d")
-        except:
-            published_time = datetime.strptime(datetime_str, "%d-%m-%Y")
-        news_item['date'] = datetime_str
         # URL de la noticia
         news_item['url'] = response.url
 
         stats = self.crawler.stats.get_stats()
         if stats['response_received_count'] > 300:
             raise CloseSpider('Time exceeded')
-
+        
         self.item_count += 1
         if self.item_count > 40:
             raise CloseSpider('Item exceeded')

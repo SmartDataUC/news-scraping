@@ -66,5 +66,5 @@ class TheClinicSpider(CrawlSpider):
             self.item_count += 1
             if self.item_count >= 2:
                 raise CloseSpider('Date exceeded')
-        
+            return
         yield news_item
