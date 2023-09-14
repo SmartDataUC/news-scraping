@@ -45,7 +45,7 @@ class SaveToPSQLPipeline:
         endpoint = "smartdata.cb4ddbyn5hgn.us-east-1.rds.amazonaws.com"
         database = "postgres"
         username = "postgres"
-        password = "f4lcon$ll4ma"
+        password = "f4lc0n$ll4ma"
         self.conn = psycopg2.connect(database=database,
                                 host=endpoint,
                                 user=username,
