@@ -55,7 +55,6 @@ class SaveToPSQLPipeline:
 
         self.cursor.execute("""
                             CREATE TABLE IF NOT EXISTS noticias(
-                            id SERIAL PRIMARY KEY,
                             title TEXT,
                             subtitle TEXT,
                             body TEXT,
