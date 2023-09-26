@@ -89,7 +89,7 @@ class TestPSQLPipeline:
         endpoint = "smartdata.cb4ddbyn5hgn.us-east-1.rds.amazonaws.com"
         database = "postgres"
         username = "postgres"
-        password = "f4lcon$ll4ma"
+        password = "f4lc0n$ll4ma"
         self.conn = psycopg2.connect(database=database,
                                 host=endpoint,
                                 user=username,
@@ -99,13 +99,16 @@ class TestPSQLPipeline:
 
         self.cursor.execute("""
                             CREATE TABLE IF NOT EXISTS test(
-                            id SERIAL PRIMARY KEY,
                             title TEXT,
                             subtitle TEXT,
                             body TEXT,
                             date DATE,
-                            media VARCHAR(20),
-                            url VARCHAR(255) NOT NULL
+                            media VARCHAR(20) NOT NULL,
+                            url VARCHAR(255) NOT NULL,
+                            category_1 TEXT,
+                            prob_1 FLOAT,
+                            category_2 TEXT,
+                            prob_2
                             );
                             """)
     def process_item(self, item, spider):

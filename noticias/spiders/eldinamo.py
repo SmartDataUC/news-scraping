@@ -54,18 +54,11 @@ class ElDinamoSpider(CrawlSpider):
         # URL de la noticia
         news_item['url'] = response.url
         
-        stats = self.crawler.stats.get_stats()
-        if stats['response_received_count'] > 300:
-            raise CloseSpider('Time exceeded')
-        
         self.item_count += 1
-        if self.item_count > 40:
+        if self.item_count > 100:
             raise CloseSpider('Item exceeded')
         
         days = (datetime.now().replace(tzinfo=None) - published_time.replace(tzinfo=None)).days
         if days > 1:
-            self.item_count += 1
-            if self.item_count >= 2:
-                raise CloseSpider('Date exceeded')
             return
         yield news_item
