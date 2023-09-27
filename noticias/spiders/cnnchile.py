@@ -24,14 +24,12 @@ class CnnchileSpider(CrawlSpider):
              callback='parse_item', follow=False)
     }
 
-    def parse(self, response):
-        # This is your top-level parse method
-        pass
 
     def parse_item(self, response):
         news_item = NoticiasItem()
         news_item['media'] = 'cnnchile'
-
+        news_item['url'] = response.url
+        
         # Article title & subtitle
         news_item['title'] = clean_text(response.xpath('//h1/text()').extract())
         news_item['subtitle'] = clean_text(response.xpath('//div[@class="main-single-header__excerpt"]/p/text()').extract())
