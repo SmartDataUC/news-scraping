@@ -75,7 +75,12 @@ class SaveToPSQLPipeline:
                             body,
                             date,
                             media,
-                            url
+                            url,
+                            category_1,
+                            pred_1,
+                            category_2,
+                            pred_2,
+                            comunas
                             ) VALUES (
                             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                             )""", (
