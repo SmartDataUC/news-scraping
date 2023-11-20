@@ -5,13 +5,16 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text
-
+from noticias.utils import clean_text, predict_categories
+import pickle
 class BiobiochileSpider(CrawlSpider):
     name = "biobiochile"
     allowed_domains = ["biobiochile.cl"]
     start_urls = ["https://www.biobiochile.cl/lista/categorias/region-metropolitana"]
     item_count = 0
+
+    with open('./comunas.pkl', 'rb') as f:
+        comunas = pickle.load(f)
 
     # Rules to explore item and next page
     rules = {
@@ -20,6 +23,10 @@ class BiobiochileSpider(CrawlSpider):
         Rule(LinkExtractor(allow=(), restrict_xpaths=('//div[@class="article-text-container"]/a')),
              callback='parse_item', follow=False)
     }
+
+    def getComunas(self, text):
+        comunas_encontradas = [comuna for comuna in self.comunas if comuna in text]
+        return comunas_encontradas
 
     def parse_item(self, response):
         news_item = NoticiasItem()
@@ -48,6 +55,19 @@ class BiobiochileSpider(CrawlSpider):
             full_text += paragraph_text + '\n'
 
         news_item['body'] = clean_text(full_text.strip())
+
+        try:
+            comunas_encontradas = self.getComunas(news_item['body'])
+            news_item['comunas'] = ', '.join(comunas_encontradas)
+        except:
+            news_item['comunas'] = ''
+
+        # Predecir categorías
+        category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
+        news_item['category_1'] = category_1
+        news_item['pred_1'] = pred_1
+        news_item['category_2'] = category_2
+        news_item['pred_2'] = pred_2
 
         # Fecha de publicación
         date_str = response.css('meta[property="og:updated_time"]::attr(content)').get()

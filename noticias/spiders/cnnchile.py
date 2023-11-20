@@ -6,8 +6,8 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text
-
+from noticias.utils import clean_text, predict_categories
+import pickle
 
 class CnnchileSpider(CrawlSpider):
     name = "cnnchile"
@@ -18,13 +18,19 @@ class CnnchileSpider(CrawlSpider):
         'https://www.cnnchile.com/category/pais/'
     ]
 
+    with open('./comunas.pkl', 'rb') as f:
+        comunas = pickle.load(f)
+
     rules = {
         Rule(LinkExtractor(allow=(), restrict_xpaths='/html/body/div[3]/main/div/div[1]/div/div[15]/div[2]/a[3]')),  # navigation
         Rule(LinkExtractor(allow=(), restrict_xpaths='//h2[@class="inner-item__title"]/a'),  # items
              callback='parse_item', follow=False)
     }
 
-
+    def getComunas(self, text):
+        comunas_encontradas = [comuna for comuna in self.comunas if comuna in text]
+        return comunas_encontradas
+    
     def parse_item(self, response):
         news_item = NoticiasItem()
         news_item['media'] = 'cnnchile'
@@ -61,6 +67,19 @@ class CnnchileSpider(CrawlSpider):
 
         news_item['body'] = clean_text(article_text.strip())
         
+        try:
+            comunas_encontradas = self.getComunas(news_item['body'])
+            news_item['comunas'] = ', '.join(comunas_encontradas)
+        except:
+            news_item['comunas'] = ''
+
+        # Predecir categorías
+        category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
+        news_item['category_1'] = category_1
+        news_item['pred_1'] = pred_1
+        news_item['category_2'] = category_2
+        news_item['pred_2'] = pred_2
+
         json_ld_script = response.css('script[type="application/ld+json"]::text').get()
 
         

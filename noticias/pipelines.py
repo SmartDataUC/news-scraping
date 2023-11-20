@@ -28,7 +28,7 @@ class NoticiasPipeline(object):
         file = open('data/%s_items.csv' % spider.name, 'w+b')
         self.files[spider] = file
         self.exporter = CsvItemExporter(file)
-        self.exporter.fields_to_export = ['title', 'subtitle', 'body', 'date', 'media', 'url']
+        self.exporter.fields_to_export = ['title', 'subtitle', 'body', 'date', 'media', 'url', 'comunas', 'category_1', 'pred_1', 'category_2', 'pred_2']
         self.exporter.start_exporting()
 
     def spider_closed(self, spider):
@@ -42,7 +42,7 @@ class NoticiasPipeline(object):
 
 class SaveToPSQLPipeline:
     def __init__(self):
-        endpoint = "smartdata.cb4ddbyn5hgn.us-east-1.rds.amazonaws.com"
+        endpoint = "smartdata.cwt3zjjzj7as.sa-east-1.rds.amazonaws.com"
         database = "postgres"
         username = "postgres"
         password = "f4lc0n$ll4ma"
@@ -54,13 +54,18 @@ class SaveToPSQLPipeline:
         self.cursor = self.conn.cursor()
 
         self.cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS noticias(
-                            title TEXT,
-                            subtitle TEXT,
-                            body TEXT,
-                            date DATE,
-                            media VARCHAR(20),
-                            url VARCHAR(255) NOT NULL
+                            CREATE TABLE IF NOT EXISTS noticias (
+                                title TEXT,
+                                subtitle TEXT,
+                                body TEXT,
+                                date TIMESTAMP,
+                                media TEXT,
+                                url TEXT UNIQUE,
+                                category_1 TEXT,
+                                pred_1 FLOAT,
+                                category_2 TEXT,
+                                pred_2 FLOAT,
+                                comunas TEXT
                             );
                             """)
     def process_item(self, item, spider):
@@ -72,9 +77,9 @@ class SaveToPSQLPipeline:
                             media,
                             url
                             ) VALUES (
-                            %s, %s, %s, %s, %s, %s
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                             )""", (
-            item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url']
+            item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url'], item['category_1'], float(item['pred_1']), item['category_2'], float(item['pred_2']), item['comunas']
                             ))
         self.conn.commit()
         return item

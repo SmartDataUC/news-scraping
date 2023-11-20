@@ -5,8 +5,8 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text
-
+from noticias.utils import clean_text, predict_categories
+import pickle
 class TheClinicSpider(CrawlSpider):
     name = 'theclinic'
     allowed_domains = ['theclinic.cl']
@@ -16,10 +16,17 @@ class TheClinicSpider(CrawlSpider):
     ]
     item_count = 0
 
+    with open('./comunas.pkl', 'rb') as f:
+        comunas = pickle.load(f)
+
     rules = (
         Rule(LinkExtractor(allow=(), restrict_xpaths='//a[@class="next page-numbers"]'), follow=True),
         Rule(LinkExtractor(allow=(), restrict_xpaths='//div[@class="titulares"]/h2/a'), callback='parse_item', follow=False),
     )
+
+    def getComunas(self, text):
+        comunas_encontradas = [comuna for comuna in self.comunas if comuna in text]
+        return comunas_encontradas
 
     def parse_item(self, response):
         if '/media/' in response.url:
@@ -53,7 +60,20 @@ class TheClinicSpider(CrawlSpider):
             article_text += paragraph_text + ' '
 
         news_item['body'] = clean_text(article_text.strip())
+
+        try:
+            comunas_encontradas = self.getComunas(news_item['body'])
+            news_item['comunas'] = ', '.join(comunas_encontradas)
+        except:
+            news_item['comunas'] = ''
         
+        # Predecir categorías
+        category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
+        news_item['category_1'] = category_1
+        news_item['pred_1'] = pred_1
+        news_item['category_2'] = category_2
+        news_item['pred_2'] = pred_2
+
         date_str = response.css('meta[property="article:published_time"]::attr(content)').get()
         published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")
         news_item['date'] = date_str[:10]

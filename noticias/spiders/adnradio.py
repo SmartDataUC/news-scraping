@@ -5,12 +5,17 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
+from noticias.utils import predict_categories
+import pickle
 
 class ADNRadioSpider(CrawlSpider):
     name = 'adnradio'
     item_count = 0
     allowed_domain = ['www.adnradio.cl']
     start_urls = ['https://www.adnradio.cl/category/nacional/page/1/']
+
+    with open('./comunas.pkl', 'rb') as f:
+        comunas = pickle.load(f)
 
     # Rules to explore item and next page
     rules = {
@@ -24,6 +29,10 @@ class ADNRadioSpider(CrawlSpider):
         text = text.replace("\n", '')
         text = ''.join(text)
         return text.strip()
+    
+    def getComunas(self, text):
+        comunas_encontradas = [comuna for comuna in self.comunas if comuna in text]
+        return comunas_encontradas
 
     def parse_item(self, response):
         news_item = NoticiasItem()
@@ -59,6 +68,19 @@ class ADNRadioSpider(CrawlSpider):
 
         news_item['body'] = self.clean_text(full_text.strip())
 
+        try:
+            comunas_encontradas = self.getComunas(news_item['body'])
+            news_item['comunas'] = ', '.join(comunas_encontradas)
+        except:
+            news_item['comunas'] = ''
+
+        # Predecir categorías
+        category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
+        news_item['category_1'] = category_1
+        news_item['pred_1'] = pred_1
+        news_item['category_2'] = category_2
+        news_item['pred_2'] = pred_2
+        
         # Fecha de publicación
         div_element = soup.find('div', class_='old_post_message')
         year = div_element.get('data-post-year')

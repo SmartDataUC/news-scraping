@@ -15,3 +15,8 @@ class NoticiasItem(scrapy.Item):
     body = scrapy.Field()
     date = scrapy.Field()
     url = scrapy.Field()
+    comunas = scrapy.Field()
+    category_1 = scrapy.Field()
+    pred_1 = scrapy.Field()
+    category_2 = scrapy.Field()
+    pred_2 = scrapy.Field()
