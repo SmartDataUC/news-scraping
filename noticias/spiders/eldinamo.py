@@ -5,7 +5,7 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import predict_categories
+from noticias.utils import predict_categories, preprocesar_texto
 import pickle
 class ElDinamoSpider(CrawlSpider):
     name = 'eldinamo'
@@ -35,20 +35,26 @@ class ElDinamoSpider(CrawlSpider):
         news_item['title'] = response.xpath('//h1/text()').extract()[0]
         news_item['subtitle'] = response.xpath('//p[@class="bajada"]/text()').extract()[0]
 
-        # Article Body (B4S to extract the bold and link texts)
         soup = BeautifulSoup(response.body, 'html.parser')
-        paragraphs = soup.select('p')
+
+        # Encuentra el div con clase "the-content"
+        content_div = soup.find('div', class_='the-content')
+
         article_text = ''
 
-        for paragraph in paragraphs:
-            text_parts = []
-            for element in paragraph.contents:
-                if element.name == 'a' or element.name == 'strong':
-                    text_parts.append(element.get_text())
-                elif isinstance(element, str):
-                    text_parts.append(element)
-            paragraph_text = ' '.join(text_parts).strip()
-            article_text += paragraph_text + ' '
+        if content_div:
+            paragraphs = content_div.find_all('p')
+
+            # Itera sobre los párrafos y extrae el texto
+            for paragraph in paragraphs:
+                text_parts = []
+                for element in paragraph.contents:
+                    if element.name == 'a' or element.name == 'strong':
+                        text_parts.append(element.get_text())
+                    elif isinstance(element, str):
+                        text_parts.append(element)
+                paragraph_text = ' '.join(text_parts).strip()
+                article_text += paragraph_text + ' '
 
         news_item['body'] = article_text.strip()
 
@@ -58,6 +64,11 @@ class ElDinamoSpider(CrawlSpider):
         except:
             news_item['comunas'] = ''
         
+        # Preprocesar texto
+        news_item['clean_title'] = preprocesar_texto(news_item['title'])
+        news_item['clean_subtitle'] = preprocesar_texto(news_item['subtitle'])
+        news_item['clean_body'] = preprocesar_texto(news_item['body'])
+
         # Predecir categorías
         category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
         news_item['category_1'] = category_1

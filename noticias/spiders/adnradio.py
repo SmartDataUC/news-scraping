@@ -5,7 +5,7 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import predict_categories
+from noticias.utils import predict_categories, preprocesar_texto
 import pickle
 
 class ADNRadioSpider(CrawlSpider):
@@ -74,6 +74,11 @@ class ADNRadioSpider(CrawlSpider):
         except:
             news_item['comunas'] = ''
 
+        # Preprocesar texto
+        news_item['clean_title'] = preprocesar_texto(news_item['title'])
+        news_item['clean_subtitle'] = preprocesar_texto(news_item['subtitle'])
+        news_item['clean_body'] = preprocesar_texto(news_item['body'])
+        
         # Predecir categorías
         category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
         news_item['category_1'] = category_1

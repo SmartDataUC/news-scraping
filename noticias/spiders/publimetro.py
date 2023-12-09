@@ -7,24 +7,21 @@ from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
 from noticias.utils import clean_text, predict_categories, preprocesar_texto
 import pickle
-class LaTerceraSpider(CrawlSpider):
-    name = 'latercera'
+
+
+class PublimetroSpider(CrawlSpider):
+    name = "publimetro"
+    allowed_domains = ["publimetro.cl"]
+    start_urls = ["https://www.publimetro.cl/noticias/"]
     item_count = 0
-    allowed_domain = ['www.latercera.com']
-    start_urls = [
-        'https://www.latercera.com/categoria/nacional/',
-        'https://www.latercera.com/etiqueta/medioambiente/',
-        'https://www.latercera.com/etiqueta/seguridad/',
-        'https://www.latercera.com/etiqueta/transporte/'
-    ]
 
     with open('./comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
 
     rules = {
-        Rule(LinkExtractor(allow=(), restrict_xpaths='//div[@class="pagination"]/nav/ul/li/a')),
-        Rule(LinkExtractor(allow=(), restrict_xpaths='//div[@class="headline | width_full hl"]/h3/a'),
+        #Rule(LinkExtractor(allow=(), restrict_xpaths='//div[@class="pagination"]/nav/ul/li/a')), //div[contains(@class, 'promo-headline') or contains(@class, 'results-list-container')]//h2
+        Rule(LinkExtractor(allow=(), restrict_xpaths='//*[@id="skin-branding"]/div/div[2]/main/div[3]/div/div[2]/a'),
              callback='parse_item', follow=False)
     }
 
@@ -34,15 +31,16 @@ class LaTerceraSpider(CrawlSpider):
 
     def parse_item(self, response):
         news_item = NoticiasItem()
-        news_item['media'] = 'latercera'
+        news_item['media'] = 'publimetro'
 
         # Article title & subtitle
-        news_item['title'] = clean_text(response.xpath('//*[@id="fusion-app"]/div[1]/section/article/header/div/div[1]/h1/div/text()').extract()[0])
-        news_item['subtitle'] = clean_text(response.xpath('//p[@class="excerpt"]/text()').extract()[0])
+        news_item['title'] = clean_text(response.xpath('//h1/text()').extract())
+        news_item['subtitle'] = clean_text(response.xpath('//div[@class="col-sm-xl-12 layout-section wrap-bottom promo1"]/h2/text()').extract())
 
         # Article Body (B4S to extract the bold and link texts)
         soup = BeautifulSoup(response.body, 'html.parser')
-        paragraphs = soup.select('p.paragraph')
+        content_div = soup.find('article', class_='default__ArticleBody-xb1qmn-2 dwgCRL article-body-wrapper')
+        paragraphs = content_div.select('p')
         article_text = ''
 
         for paragraph in paragraphs:
@@ -76,7 +74,7 @@ class LaTerceraSpider(CrawlSpider):
         news_item['pred_2'] = pred_2
         
         # Fecha de publicación
-        published_time = response.css('meta[property="article:published_time"]::attr(content)').get()
+        published_time = response.css('time.primary-font__PrimaryFontStyles-o56yd5-0.ctbcAa.date.undefined::attr(datetime)').get()
         published_time = datetime.strptime(published_time, "%Y-%m-%dT%H:%M:%S.%fZ")
         news_item['date'] = published_time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -85,7 +83,7 @@ class LaTerceraSpider(CrawlSpider):
 
         self.item_count += 1
 
-        if self.item_count > 150:
+        if self.item_count > 100:
             raise CloseSpider('Item exceeded')
         
         days = (datetime.now().replace(tzinfo=None) - published_time.replace(tzinfo=None)).days

@@ -90,7 +90,7 @@ class CnnchileSpider(CrawlSpider):
 
         published_time = datetime.strptime(date_published[:10], "%Y-%m-%d")
         news_item['date'] = date_published[:10]
-
+        news_item['url'] = response.url
         self.item_count += 1
 
         if self.item_count > 100:

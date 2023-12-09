@@ -1,5 +1,8 @@
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
+import nltk
+from nltk.tokenize import word_tokenize
+nltk.download('punkt')
 
 with open('./modelo_svc.pkl', 'rb') as model_file:
         modelo_svc = pickle.load(model_file)
@@ -9,6 +12,9 @@ with open('./vectorizer.pkl', 'rb') as vec_file:
 
 with open('./categories_map.pkl', 'rb') as vec_file:
         category_map = pickle.load(vec_file)
+
+with open('./stopwords_es.pkl', 'rb') as sw_file:
+        stopwords_es = pickle.load(sw_file)
 
 def extract_content(paragraphs):
     content = '\n'.join([''.join(p.xpath('.//text()').getall()) for p in paragraphs])
@@ -50,3 +56,21 @@ def predict_categories(text):
             return category_map[first_cat], first_pred, '', 0.0
         else:
             return category_map[first_cat], first_pred, category_map[sec_cat], sec_pred
+        
+
+def preprocesar_texto(texto):
+    if isinstance(texto, str):
+
+        # Tokenizar el texto en palabras
+        palabras = word_tokenize(texto.lower())  # Convertir a minúsculas para uniformidad
+
+        # Eliminar signos de puntuación y números
+        palabras = [palabra for palabra in palabras if palabra.isalpha()]
+
+        # Eliminar stopwords
+        palabras = [palabra for palabra in palabras if palabra not in stopwords_es]
+
+        # Unir las palabras nuevamente en una cadena
+        texto_limpio = ' '.join(palabras)
+
+        return texto_limpio

@@ -69,22 +69,27 @@ class SaveToPSQLPipeline:
                             );
                             """)
     def process_item(self, item, spider):
-        self.cursor.execute(""" INSERT INTO noticias(
+        self.cursor.execute("""INSERT INTO news(
                             title,
                             subtitle,
                             body,
                             date,
                             media,
                             url,
+                            clean_title,
+                            clean_subtitle,
+                            clean_body,
                             category_1,
                             pred_1,
                             category_2,
                             pred_2,
                             comunas
                             ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                             )""", (
-            item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url'], item['category_1'], float(item['pred_1']), item['category_2'], float(item['pred_2']), item['comunas']
+                                item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url'],
+                               item['clean_title'], item['clean_subtitle'], item['clean_body'],
+                               item['category_1'], float(item['pred_1']), item['category_2'], float(item['pred_2']), item['comunas']
                             ))
         self.conn.commit()
         return item
