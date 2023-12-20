@@ -20,3 +20,6 @@ class NoticiasItem(scrapy.Item):
     pred_1 = scrapy.Field()
     category_2 = scrapy.Field()
     pred_2 = scrapy.Field()
+    clean_title = scrapy.Field()
+    clean_subtitle = scrapy.Field()
+    clean_body = scrapy.Field()

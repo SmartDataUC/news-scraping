@@ -6,7 +6,7 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text, predict_categories
+from noticias.utils import clean_text, predict_categories, preprocesar_texto
 import pickle
 
 class CnnchileSpider(CrawlSpider):
@@ -82,7 +82,11 @@ class CnnchileSpider(CrawlSpider):
 
         json_ld_script = response.css('script[type="application/ld+json"]::text').get()
 
-        
+        # Preprocesar texto
+        news_item['clean_title'] = preprocesar_texto(news_item['title'])
+        news_item['clean_subtitle'] = preprocesar_texto(news_item['subtitle'])
+        news_item['clean_body'] = preprocesar_texto(news_item['body'])
+
         json_data = json.loads(json_ld_script)
 
         # Extract the datePublished field
