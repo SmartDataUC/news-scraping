@@ -94,9 +94,9 @@ class ADNRadioSpider(CrawlSpider):
 
         # Sentiment
         news_item['sentiment'] = None
-        news_item['POS'] = -1
-        news_item['NEU'] = -1
-        news_item['NEG'] = -1
+        news_item['pos'] = -1
+        news_item['neu'] = -1
+        news_item['neg'] = -1
         
         # Fecha de publicación
         div_element = soup.find('div', class_='old_post_message')

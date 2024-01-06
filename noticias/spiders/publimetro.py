@@ -81,9 +81,9 @@ class PublimetroSpider(CrawlSpider):
 
         # Sentiment
         news_item['sentiment'] = None
-        news_item['POS'] = -1
-        news_item['NEU'] = -1
-        news_item['NEG'] = -1
+        news_item['pos'] = -1
+        news_item['neu'] = -1
+        news_item['neg'] = -1
         
         # Fecha de publicación
         published_time = response.css('time.primary-font__PrimaryFontStyles-o56yd5-0.ctbcAa.date.undefined::attr(datetime)').get()

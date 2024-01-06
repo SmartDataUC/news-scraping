@@ -88,9 +88,9 @@ class CnnchileSpider(CrawlSpider):
 
         # Sentiment
         news_item['sentiment'] = None
-        news_item['POS'] = -1
-        news_item['NEU'] = -1
-        news_item['NEG'] = -1
+        news_item['pos'] = -1
+        news_item['neu'] = -1
+        news_item['neg'] = -1
 
         json_ld_script = response.css('script[type="application/ld+json"]::text').get()
 

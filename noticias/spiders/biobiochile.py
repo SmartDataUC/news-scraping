@@ -82,9 +82,9 @@ class BiobiochileSpider(CrawlSpider):
 
         # Sentiment
         news_item['sentiment'] = None
-        news_item['POS'] = -1
-        news_item['NEU'] = -1
-        news_item['NEG'] = -1
+        news_item['pos'] = -1
+        news_item['neu'] = -1
+        news_item['neg'] = -1
 
         # Fecha de publicación
         date_str = response.css('meta[property="og:updated_time"]::attr(content)').get()

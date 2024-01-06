@@ -87,9 +87,9 @@ class TheClinicSpider(CrawlSpider):
 
         # Sentiment
         news_item['sentiment'] = None
-        news_item['POS'] = -1
-        news_item['NEU'] = -1
-        news_item['NEG'] = -1
+        news_item['pos'] = -1
+        news_item['neu'] = -1
+        news_item['neg'] = -1
 
         date_str = response.css('meta[property="article:published_time"]::attr(content)').get()
         published_time = datetime.strptime(date_str[:10], "%Y-%m-%d")

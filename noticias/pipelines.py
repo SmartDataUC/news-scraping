@@ -84,16 +84,16 @@ class SaveToPSQLPipeline:
                             category_2,
                             gore,
                             sentiment,
-                            POS,
-                            NEU,
-                            NEG
+                            pos,
+                            neu,
+                            neg
                             ) VALUES (
                             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                             )""", (
                                 item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url'],
                                item['clean_title'], item['clean_subtitle'], item['clean_body'], item['comunas'],
                                item['category_1'], item['category_2'], item['gore'],
-                               item['sentiment'], float(item['POS']), float(item['NEU']), float(item['NEG']) 
+                               item['sentiment'], float(item['pos']), float(item['neu']), float(item['neg']) 
                             ))
         self.conn.commit()
         return item
