@@ -76,7 +76,7 @@ class LaTerceraSpider(CrawlSpider):
         # news_item['pred_2'] = pred_2
         category_1, category_2 = setCategories(news_item['body'])
         news_item['category_1'] = category_1
-        news_item['category_1'] = category_2
+        news_item['category_2'] = category_2
         
         # GORE
         news_item['gore'] = isGORE(news_item['body'])
