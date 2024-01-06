@@ -5,7 +5,7 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text, predict_categories, preprocesar_texto
+from noticias.utils import clean_text, predict_categories, preprocesar_texto, setCategories, isGORE
 import pickle
 class ElMostradorSpider(CrawlSpider):
     name = 'elmostrador'
@@ -70,12 +70,24 @@ class ElMostradorSpider(CrawlSpider):
         news_item['clean_body'] = preprocesar_texto(news_item['body'])
         
         # Predecir categorías
-        category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
+        # category_1, pred_1, category_2, pred_2 = predict_categories(news_item['body'])
+        # news_item['category_1'] = category_1
+        # news_item['pred_1'] = pred_1
+        # news_item['category_2'] = category_2
+        # news_item['pred_2'] = pred_2
+        category_1, category_2 = setCategories(news_item['body'])
         news_item['category_1'] = category_1
-        news_item['pred_1'] = pred_1
-        news_item['category_2'] = category_2
-        news_item['pred_2'] = pred_2
-            
+        news_item['category_1'] = category_2
+        
+        # GORE
+        news_item['gore'] = isGORE(news_item['body'])
+
+        # Sentiment
+        news_item['sentiment'] = None
+        news_item['POS'] = -1
+        news_item['NEU'] = -1
+        news_item['NEG'] = -1
+
         # Fecha de publicación
         time_element = soup.find('time')
         datetime_str = time_element.get('datetime')
