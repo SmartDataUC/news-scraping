@@ -6,7 +6,7 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text, predict_categories, preprocesar_texto, setCategories, isGORE
+from noticias.utils import clean_text, preprocesar_texto, isGORE, pysent_sentiment
 import pickle
 
 class CnnchileSpider(CrawlSpider):
@@ -79,18 +79,18 @@ class CnnchileSpider(CrawlSpider):
         # news_item['pred_1'] = pred_1
         # news_item['category_2'] = category_2
         # news_item['pred_2'] = pred_2
-        category_1, category_2 = setCategories(news_item['body'])
-        news_item['category_1'] = category_1
-        news_item['category_2'] = category_2
+        news_item['category_1'] = ''
+        news_item['category_2'] = ''
         
         # GORE
         news_item['gore'] = isGORE(news_item['body'])
 
         # Sentiment
-        news_item['sentiment'] = None
-        news_item['pos'] = -1
-        news_item['neu'] = -1
-        news_item['neg'] = -1
+        sent, pos, neu, neg = pysent_sentiment(news_item['body'])
+        news_item['sentiment'] = sent
+        news_item['pos'] = pos
+        news_item['neu'] = neu
+        news_item['neg'] = neg
 
         json_ld_script = response.css('script[type="application/ld+json"]::text').get()
 
@@ -116,6 +116,6 @@ class CnnchileSpider(CrawlSpider):
         
         if days > 1:
             return
-
+        
         yield news_item
 

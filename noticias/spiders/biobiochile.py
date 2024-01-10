@@ -5,7 +5,7 @@ from scrapy.exceptions import CloseSpider
 from datetime import datetime
 from bs4 import BeautifulSoup
 from noticias.items import NoticiasItem
-from noticias.utils import clean_text, predict_categories, preprocesar_texto, setCategories, isGORE
+from noticias.utils import clean_text, preprocesar_texto, isGORE, pysent_sentiment
 import pickle
 class BiobiochileSpider(CrawlSpider):
     name = "biobiochile"
@@ -73,18 +73,17 @@ class BiobiochileSpider(CrawlSpider):
         # news_item['pred_1'] = pred_1
         # news_item['category_2'] = category_2
         # news_item['pred_2'] = pred_2
-        category_1, category_2 = setCategories(news_item['body'])
-        news_item['category_1'] = category_1
-        news_item['category_2'] = category_2
-        
+        news_item['category_1'] = ''
+        news_item['category_2'] = ''
         # GORE
         news_item['gore'] = isGORE(news_item['body'])
 
         # Sentiment
-        news_item['sentiment'] = None
-        news_item['pos'] = -1
-        news_item['neu'] = -1
-        news_item['neg'] = -1
+        sent, pos, neu, neg = pysent_sentiment(news_item['body'])
+        news_item['sentiment'] = sent
+        news_item['pos'] = pos
+        news_item['neu'] = neu
+        news_item['neg'] = neg
 
         # Fecha de publicación
         date_str = response.css('meta[property="og:updated_time"]::attr(content)').get()
@@ -98,10 +97,6 @@ class BiobiochileSpider(CrawlSpider):
 
         # URL de la noticia
         news_item['url'] = response.url
-
-        stats = self.crawler.stats.get_stats()
-        if stats['response_received_count'] > 300:
-            raise CloseSpider('Time exceeded')
         
         self.item_count += 1
         if self.item_count > 40:
@@ -113,4 +108,5 @@ class BiobiochileSpider(CrawlSpider):
             if self.item_count >= 2:
                 raise CloseSpider('Date exceeded')
             return
+
         yield news_item

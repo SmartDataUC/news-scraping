@@ -7,8 +7,8 @@ import pandas as pd
 from nltk.tokenize import word_tokenize
 nltk.download('punkt')
 
-with open('./modelo_svc.pkl', 'rb') as model_file:
-        modelo_svc = pickle.load(model_file)
+with open('./sentiment_model.pkl', 'rb') as model_file:
+        sentiment_model = pickle.load(model_file)
 
 with open('./vectorizer.pkl', 'rb') as vec_file:
         vectorizer = pickle.load(vec_file)
@@ -19,7 +19,7 @@ with open('./categories_map.pkl', 'rb') as vec_file:
 with open('./stopwords_es.pkl', 'rb') as sw_file:
         stopwords_es = pickle.load(sw_file)
 
-openai.api_key = "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"
+openai.api_key = ""
 
 def extract_content(paragraphs):
     content = '\n'.join([''.join(p.xpath('.//text()').getall()) for p in paragraphs])
@@ -48,19 +48,19 @@ def clean_text(text):
         text = ''.join(text)
         return text.strip()
 
-def predict_categories(text):
-        # Asegúrate de tener 'vectorizer' y 'category_map' definidos adecuadamente
-        nuevo_texto_tfidf = vectorizer.transform([text])
-        probabilidades = modelo_svc.predict_proba(nuevo_texto_tfidf)
-        sort_probabilidades = [sorted(enumerate(prob), key=lambda x: -x[1])[:4] for prob in probabilidades][0]
-        first_cat, first_pred = sort_probabilidades[0]
-        sec_cat, sec_pred = sort_probabilidades[1]
-        first_pred = round(first_pred, 2)
-        sec_pred = round(sec_pred, 2)
-        if first_pred >= 0.65:
-            return category_map[first_cat], first_pred, '', 0.0
-        else:
-            return category_map[first_cat], first_pred, category_map[sec_cat], sec_pred
+# def predict_categories(text):
+#         # Asegúrate de tener 'vectorizer' y 'category_map' definidos adecuadamente
+#         nuevo_texto_tfidf = vectorizer.transform([text])
+#         probabilidades = modelo_svc.predict_proba(nuevo_texto_tfidf)
+#         sort_probabilidades = [sorted(enumerate(prob), key=lambda x: -x[1])[:4] for prob in probabilidades][0]
+#         first_cat, first_pred = sort_probabilidades[0]
+#         sec_cat, sec_pred = sort_probabilidades[1]
+#         first_pred = round(first_pred, 2)
+#         sec_pred = round(sec_pred, 2)
+#         if first_pred >= 0.65:
+#             return category_map[first_cat], first_pred, '', 0.0
+#         else:
+#             return category_map[first_cat], first_pred, category_map[sec_cat], sec_pred
         
 
 def preprocesar_texto(texto):
@@ -166,3 +166,13 @@ def setCategories(text):
             if tag.strip() not in categorias:
                 tag = "Otro"
             return tag.strip(), None
+        
+
+def pysent_sentiment(text):
+    if isinstance(text, str):
+        prediction = sentiment_model.predict(text)
+        out = prediction.output
+        probas = prediction.probas
+        return out, probas['POS'], probas['NEU'], probas['NEG']
+    else:
+        return None, None, None, None

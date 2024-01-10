@@ -12,6 +12,8 @@ from scrapy.exceptions import DropItem
 from scrapy import Request
 import csv
 import psycopg2
+from noticias.utils import setCategories
+
 
 class NoticiasPipeline(object):
     def __init__(self):
@@ -45,7 +47,7 @@ class SaveToPSQLPipeline:
         endpoint = "smartdata.cwt3zjjzj7as.sa-east-1.rds.amazonaws.com"
         database = "postgres"
         username = "postgres"
-        password = "f4lc0n$ll4ma"
+        password = ""
         self.conn = psycopg2.connect(database=database,
                                 host=endpoint,
                                 user=username,
@@ -69,6 +71,9 @@ class SaveToPSQLPipeline:
                             );
                             """)
     def process_item(self, item, spider):
+        category_1, category_2 = setCategories(item['body'])
+        item['category_1'] = category_1
+        item['category_2'] = category_2
         self.cursor.execute("""INSERT INTO news(
                             title,
                             subtitle,
