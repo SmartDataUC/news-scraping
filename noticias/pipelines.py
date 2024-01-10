@@ -113,7 +113,7 @@ class TestPSQLPipeline:
         endpoint = "smartdata.cb4ddbyn5hgn.us-east-1.rds.amazonaws.com"
         database = "postgres"
         username = "postgres"
-        password = "f4lc0n$ll4ma"
+        password = ""
         self.conn = psycopg2.connect(database=database,
                                 host=endpoint,
                                 user=username,
