@@ -55,21 +55,6 @@ class SaveToPSQLPipeline:
                                 port="5432")
         self.cursor = self.conn.cursor()
 
-        self.cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS noticias (
-                                title TEXT,
-                                subtitle TEXT,
-                                body TEXT,
-                                date TIMESTAMP,
-                                media TEXT,
-                                url TEXT UNIQUE,
-                                category_1 TEXT,
-                                pred_1 FLOAT,
-                                category_2 TEXT,
-                                pred_2 FLOAT,
-                                comunas TEXT
-                            );
-                            """)
     def process_item(self, item, spider):
         category_1, category_2 = setCategories(item['body'])
         item['category_1'] = category_1
@@ -99,54 +84,6 @@ class SaveToPSQLPipeline:
                                item['clean_title'], item['clean_subtitle'], item['clean_body'], item['comunas'],
                                item['category_1'], item['category_2'], item['gore'],
                                item['sentiment'], float(item['pos']), float(item['neu']), float(item['neg']) 
-                            ))
-        self.conn.commit()
-        return item
-    
-    def close_spider(self, spider):
-        self.cursor.close()
-        self.conn.close()
-
-
-class TestPSQLPipeline:
-    def __init__(self):
-        endpoint = "smartdata.cb4ddbyn5hgn.us-east-1.rds.amazonaws.com"
-        database = "postgres"
-        username = "postgres"
-        password = ""
-        self.conn = psycopg2.connect(database=database,
-                                host=endpoint,
-                                user=username,
-                                password=password,
-                                port="5432")
-        self.cursor = self.conn.cursor()
-
-        self.cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS test(
-                            title TEXT,
-                            subtitle TEXT,
-                            body TEXT,
-                            date DATE,
-                            media VARCHAR(20) NOT NULL,
-                            url VARCHAR(255) NOT NULL,
-                            category_1 TEXT,
-                            prob_1 FLOAT,
-                            category_2 TEXT,
-                            prob_2
-                            );
-                            """)
-    def process_item(self, item, spider):
-        self.cursor.execute(""" INSERT INTO test(
-                            title,
-                            subtitle,
-                            body,
-                            date,
-                            media,
-                            url
-                            ) VALUES (
-                            %s, %s, %s, %s, %s, %s
-                            )""", (
-            item['title'], item['subtitle'], item['body'], item['date'], item['media'], item['url']
                             ))
         self.conn.commit()
         return item
