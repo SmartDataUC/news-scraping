@@ -6,7 +6,7 @@ import pandas as pd
 from nltk.tokenize import word_tokenize
 nltk.download('punkt')
 
-with open('./stopwords_es.pkl', 'rb') as sw_file:
+with open('./noticias/stopwords_es.pkl', 'rb') as sw_file:
         stopwords_es = pickle.load(sw_file)
 
 openai.api_key = ""

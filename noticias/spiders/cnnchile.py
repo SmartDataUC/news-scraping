@@ -18,7 +18,7 @@ class CnnchileSpider(CrawlSpider):
         'https://www.cnnchile.com/category/pais/'
     ]
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
     rules = {

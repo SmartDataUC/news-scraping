@@ -13,7 +13,7 @@ class BiobiochileSpider(CrawlSpider):
     start_urls = ["https://www.biobiochile.cl/lista/categorias/region-metropolitana"]
     item_count = 0
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
     # Rules to explore item and next page

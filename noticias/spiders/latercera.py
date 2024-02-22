@@ -18,7 +18,7 @@ class LaTerceraSpider(CrawlSpider):
         'https://www.latercera.com/etiqueta/transporte/'
     ]
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
 

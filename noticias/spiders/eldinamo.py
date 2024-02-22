@@ -13,7 +13,7 @@ class ElDinamoSpider(CrawlSpider):
     allowed_domain = ['www.eldinamo.cl']
     start_urls = ['https://www.eldinamo.cl/pais/']
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
     # Rules to explore item and next page

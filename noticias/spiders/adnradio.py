@@ -14,7 +14,7 @@ class ADNRadioSpider(CrawlSpider):
     allowed_domain = ['www.adnradio.cl']
     start_urls = ['https://www.adnradio.cl/category/nacional/page/1/']
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
     # Rules to explore item and next page

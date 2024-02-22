@@ -15,7 +15,7 @@ class PublimetroSpider(CrawlSpider):
     start_urls = ["https://www.publimetro.cl/noticias/"]
     item_count = 0
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
 

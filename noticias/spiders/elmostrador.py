@@ -16,7 +16,7 @@ class ElMostradorSpider(CrawlSpider):
         'https://www.elmostrador.cl/categoria/agenda-sustentable/'
     ]
 
-    with open('./comunas.pkl', 'rb') as f:
+    with open('./noticias/comunas.pkl', 'rb') as f:
         comunas = pickle.load(f)
 
     rules = {
