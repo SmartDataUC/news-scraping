@@ -146,9 +146,10 @@ def setCategories(text):
 
 def pysent_sentiment(text):
     if isinstance(text, str):
-        prediction = sentiment_model.predict(text)
-        out = prediction.output
-        probas = prediction.probas
-        return out, probas['POS'], probas['NEU'], probas['NEG']
+        # prediction = sentiment_model.predict(text)
+        # out = prediction.output
+        # probas = prediction.probas
+        # return out, probas['POS'], probas['NEU'], probas['NEG']
+        return 'NEU', 0.5, 0.5, 0.5
     else:
         return None, None, None, None
